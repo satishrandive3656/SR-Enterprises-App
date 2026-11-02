@@ -1,0 +1,44 @@
+name: Build SR Enterprises App
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'SR_Enterprises_Android_Project_v2.zip'
+      - '.github/workflows/android.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Extract project
+        run: unzip -o SR_Enterprises_Android_Project_v2.zip -d extracted
+
+      - name: Build APK
+        run: |
+          cd extracted/SREnterprisesAndroid
+          gradle assembleDebug
+
+      - name: Save APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: SR-Enterprises-APK
+          path: extracted/SREnterprisesAndroid/app/build/outputs/apk/debug/app-debug.apk
